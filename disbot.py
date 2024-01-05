@@ -1,9 +1,12 @@
 
 from __future__ import print_function
 
-import os.path
+import os
+import subprocess
 
 import datetime
+
+import re
 
 import time
 
@@ -12,19 +15,55 @@ import discord
 from discord.ext import commands
 
 
+regex = None
+
+# ============================================================================ #
+#                               Utility Functions                              #
+# ============================================================================ #
+
+# runs command in terminal
+def run_cmd(inputstr):
+    return subprocess.Popen(inputstr, shell=True, stdout=subprocess.PIPE).stdout.read().decode()
+
+
+# checks if author has permissions
+def check_perms(ctx, arr):
+    for n in arr:
+        if n == ctx.author.name:
+            return True
+    return False
+
+
 # inits discord bot    
 def init_bot(): 
+    
     intents = discord.Intents.default()
     intents.message_content = True
     
     global bot
     bot = commands.Bot(command_prefix='/', intents=intents)
     
+    # ============================================================================ #
+    #                               General Commands                               #
+    # ============================================================================ #
+    
     @bot.command()
     async def repeat(ctx, *args):
+        await ctx.send(' '.join(args))
+        
+    @bot.command()
+    async def repndel(ctx, *args):
         await ctx.message.delete()
         await ctx.send(' '.join(args))
+        
+    @bot.event
+    async def on_ready():
+        print(f"Logging in as {bot.user}")
+        
 
+	# ============================================================================ #
+	#                                 CGHS Commands                                #
+	# ============================================================================ #s
     
     @bot.command()
     async def decree(ctx, *args):
@@ -51,15 +90,32 @@ def init_bot():
         string += ' " \n\n IN THE NAME OF THE LORD ALMIGHTY, THY MESSAGE IS PROCLAIMED'
         
         await ctx.send(string)
-
         
-    @bot.event
-    async def on_ready():
-        print(f'We have logged in as {bot.user}')
-
+    
+    # ============================================================================ #
+    #                                Commands For Me                               #
+    # ============================================================================ #
+    
+    @bot.command()
+    async def getsong(ctx, *args):
+        result = subprocess.Popen("cd /jellyfin/Music/; yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail" + args[0], shell=True, stdout=subprocess.PIPE).stdout.read().decode()
+        await ctx.send(result);        
+        
+        
+    @bot.command()
+    async def rokualarm(ctx, *args):
+        pass
+    
+    
+    # ============================================================================ #
+    #                                 Help Commands                                #
+    # ============================================================================ #
+        
 
 # main function
 def main():
+    global regex 
+    regex = re.compile(r"\[38;2(;\d{,3}){3}m")
         
     try:
         init_bot()
