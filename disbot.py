@@ -10,6 +10,8 @@ import re
 
 import time
 
+import validators
+
 # import discord
 import discord
 from discord.ext import commands
@@ -98,8 +100,20 @@ def init_bot():
     
     @bot.command()
     async def getsong(ctx, *args):
-        result = subprocess.Popen("cd /jellyfin/Music/; yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail" + args[0], shell=True, stdout=subprocess.PIPE).stdout.read().decode()
-        await ctx.send(result);        
+        
+		# getsong command
+		getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail "
+  
+        # Check for injection
+        if not validators.url(args[1]):
+            await ctx.send("Invalid URL")
+            return
+        
+        #	Download
+        os.system("mkdir /jellyfin/Music/'" + args[0] + "'")
+        await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
+        os.system(getsong + args[1])
+        
         
         
     @bot.command()
