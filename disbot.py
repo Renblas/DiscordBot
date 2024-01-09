@@ -61,6 +61,8 @@ def init_bot():
     @bot.event
     async def on_ready():
         print(f"Logging in as {bot.user}")
+        print(Client.get_user("renblas"))
+        
         
 
 	# ============================================================================ #
@@ -120,6 +122,11 @@ def init_bot():
     @bot.command()
     async def rokualarm(ctx, *args):
         pass
+    
+    
+    @bot.command()
+    async def bot_update(ctx, *args):
+        await ctx.send(subprocess.run("cd /home/renblas/DiscordBot; git pull", shell=True, check=True))
     
     
     # ============================================================================ #
