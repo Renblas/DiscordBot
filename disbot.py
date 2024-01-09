@@ -112,7 +112,7 @@ def init_bot():
         #	Download
         os.system("mkdir /jellyfin/Music/'" + args[0] + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        os.system(getsong + args[1])
+        os.system("cd /jellyfin/Music" + args[0] + " " + getsong + args[1])
         await ctx.send("Downloading Finished.")
         
         
