@@ -138,10 +138,10 @@ def init_bot():
             await ctx.send("Invalid URL")
             return
         
-        #	Download
+        # Download
         os.system("mkdir /jellyfin/Music/'" + args[0] + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        os.system("cd /jellyfin/Music/" + args[0:-1] + ";" + getsong + args[1]) and await ctx.send("Downloading Finished.")
+        os.system("cd /jellyfin/Music/" + args[0].replace("-", " ") + ";" + getsong + args[1]) and await ctx.send("Downloading Finished.")
         jf_refresh() and await ctx.send("Reloading Jellyfin Library...")
         
         
