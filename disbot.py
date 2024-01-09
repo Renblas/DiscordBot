@@ -153,7 +153,7 @@ def init_bot():
     
     @bot.command()
     async def bot_update(ctx, *args):
-        await ctx.send(subprocess.run("cd /home/renblas/DiscordBot; git pull", shell=True, check=True))
+        await ctx.send(subprocess.run("cd /home/renblas/DiscordBot; rm disbot.py; git pull", shell=True, check=True))
     
     
     # ============================================================================ #
