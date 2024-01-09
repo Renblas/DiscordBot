@@ -4,13 +4,10 @@ from __future__ import print_function
 import os
 import subprocess
 
-import datetime
-
 import re
 
-import time
-
 import validators
+import json
 
 # import discord
 import discord
@@ -34,6 +31,36 @@ def check_perms(ctx, arr):
         if n == ctx.author.name:
             return True
     return False
+
+
+# ============================================================================ #
+#                              Jellyfin Functions                              #
+# ============================================================================ #
+
+JELLYFIN_SERVER='http://127.0.0.1:8096'
+JELLYFIN_API_KEY=open("jellyapi.env").read()
+
+if JELLYFIN_API_KEY is None:
+    print("No supplied Jellyfin API Key...")
+
+
+def jf_media_updated(mediapaths):
+    reqdata = { 'Updates': [{'Path': p} for p in mediapaths] }
+    reqstr = json.dumps(reqdata)
+    print(reqstr)
+    command = ['curl', '-v',
+        '-H','Content-Type: application/json',
+        '-H','X-MediaBrowser-Token: '+JELLYFIN_API_KEY,
+        '-d',reqstr,
+        JELLYFIN_SERVER+'/Library/Media/Updated']
+    subprocess.run(command)
+
+def jf_refresh():
+    command = ['curl', '-v',
+        '-H','X-MediaBrowser-Token: '+JELLYFIN_API_KEY,
+        '-d','',
+        JELLYFIN_SERVER+'/Library/Refresh']
+    subprocess.run(command)
 
 
 # inits discord bot    
@@ -61,7 +88,7 @@ def init_bot():
     @bot.event
     async def on_ready():
         print(f"Logging in as {bot.user}")
-        print(Client.get_user("renblas"))
+        print(discord.Client.get_user("renblas"))
         
         
 
@@ -103,8 +130,8 @@ def init_bot():
     @bot.command()
     async def getsong(ctx, *args):
         
-		# getsong command
-		getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail "
+        # getsong command
+        getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail "
   
         # Check for injection
         if not validators.url(args[1]):
@@ -114,8 +141,8 @@ def init_bot():
         #	Download
         os.system("mkdir /jellyfin/Music/'" + args[0] + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        os.system("cd /jellyfin/Music" + args[0] + " " + getsong + args[1])
-        await ctx.send("Downloading Finished.")
+        os.system("cd /jellyfin/Music" + args[0:-1] + " " + getsong + args[1]) and await ctx.send("Downloading Finished.")
+        jf_refresh() and await ctx.send("Reloading Jellyfin Library...")
         
         
         
