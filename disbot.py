@@ -141,7 +141,7 @@ def init_bot():
         # Download
         os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", "\ ") + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        os.system("cd /jellyfin/Music/" + args[0].replace("-", "\ ") + "/ && " + getsong + args[1])
+        subprocess.run("cd /jellyfin/Music/" + args[0].replace("-", "\ ") + "/ && " + getsong + args[1])
         await ctx.send("Downloading Finished.")
         jf_refresh() 
         await ctx.send("Reloading Jellyfin Library...")
