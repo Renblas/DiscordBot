@@ -88,7 +88,7 @@ def init_bot():
     @bot.event
     async def on_ready():
         print(f"Logging in as {bot.user}")
-        print(discord.Client.get_user("renblas"))
+        #print(discord.Client.get_user("renblas"))
         
         
 
@@ -141,7 +141,7 @@ def init_bot():
         # Download
         os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", "\ ") + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        os.system("cd /jellyfin/Music/" + args[0].replace("-", "\ ") + ";" + getsong + args[1])
+        os.system("cd /jellyfin/Music/" + args[0].replace("-", "\ ") + "/ && " + getsong + args[1])
         await ctx.send("Downloading Finished.")
         jf_refresh() 
         await ctx.send("Reloading Jellyfin Library...")
