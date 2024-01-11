@@ -138,7 +138,7 @@ def init_bot():
         path=args[0].replace("-", "\ ")
         
         # getsong command
-        getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail -P /jellyfin/Music/{path}/ "
+        getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail -P /jellyfin/Music/" + path + "/ "
         
         # Download
         os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", "\ ") + "'")
