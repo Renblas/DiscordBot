@@ -141,7 +141,7 @@ def init_bot():
         getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail -P /jellyfin/Music/" + path + "/ "
         
         # Download
-        os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", "\ ") + "'")
+        os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", " ") + "'")
         await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
         subprocess.run(getsong + args[1])
         await ctx.send("Downloading Finished.")
