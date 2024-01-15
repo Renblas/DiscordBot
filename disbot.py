@@ -142,7 +142,7 @@ def init_bot():
     
     @bot.command()
     async def update_bot(ctx, *args):
-        ctx.send(run_cmd("rm disbot.py; git pull"))
+        await ctx.send(run_cmd("rm disbot.py; git pull"))
         
         
 	# ============================================================================ #
