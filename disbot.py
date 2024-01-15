@@ -6,15 +6,21 @@ import subprocess
 
 import re
 
-import validators
 import json
+
+import time
 
 # import discord
 import discord
 from discord.ext import commands
 
 
-regex = None
+# ============================================================================ #
+#                               Global Variables                               #
+# ============================================================================ #
+
+LOGGING = False
+
 
 # ============================================================================ #
 #                               Utility Functions                              #
@@ -32,6 +38,32 @@ def check_perms(ctx, arr):
             return True
     return False
 
+
+def download(path, cmd):
+    
+    val = os.fork()
+    
+    # parent process
+    if val > 0:
+        return
+    
+    # if child process
+    else:
+        
+        # download song
+        run_cmd("mkdir " + path)
+        os.chdir(path)
+        output = run_cmd(cmd)
+        
+        time.sleep(15)
+        jf_refresh()
+        
+        # Log output
+        if LOGGING:
+            os.chdir("~/DiscordBot/")
+            
+        exit
+    
 
 # ============================================================================ #
 #                              Jellyfin Functions                              #
@@ -63,6 +95,10 @@ def jf_refresh():
     subprocess.run(command)
 
 
+# ============================================================================ #
+#                             Discord Bot Commands                             #
+# ============================================================================ #
+
 # inits discord bot    
 def init_bot(): 
     
@@ -72,6 +108,17 @@ def init_bot():
     global bot
     bot = commands.Bot(command_prefix='/', intents=intents)
     
+    
+    # ============================================================================ #
+    #                                  Bot Events                                  #
+    # ============================================================================ #
+        
+    @bot.event
+    async def on_ready():
+        print(f"Logging in as {bot.user}")
+        #print(discord.Client.get_user("renblas"))
+    
+    
     # ============================================================================ #
     #                               General Commands                               #
     # ============================================================================ #
@@ -80,18 +127,24 @@ def init_bot():
     async def repeat(ctx, *args):
         await ctx.send(' '.join(args))
         
+        
     @bot.command()
     async def repndel(ctx, *args):
         await ctx.message.delete()
-        await ctx.send(' '.join(args))
-        
-    @bot.event
-    async def on_ready():
-        print(f"Logging in as {bot.user}")
-        #print(discord.Client.get_user("renblas"))
+        await ctx.send(' '.join(args))    
         
         
-
+    @bot.command()
+    async def toggle_logging(ctx, *args):
+        LOGGING = not LOGGING
+        await ctx.send("LOGGING is now " + LOGGING)
+        
+    
+    @bot.command()
+    async def update_bot(ctx, *args):
+        ctx.send(run_cmd("rm disbot.py; git pull"))
+        
+        
 	# ============================================================================ #
 	#                                 CGHS Commands                                #
 	# ============================================================================ #s
@@ -129,35 +182,12 @@ def init_bot():
     
     @bot.command()
     async def getsong(ctx, *args):
-  
-        # Check for injection
-        if not validators.url(args[1]):
-            await ctx.send("Invalid URL")
-            return
         
-        path=args[0].replace("-", "\ ")
+        path="/jellyfin/Music/" + args[0] + "/ "
+        cmd = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail "
         
-        # getsong command
-        getsong = "yt-dlp -x --audio-format flac --audio-quality 1 --embed-thumbnail -P /jellyfin/Music/" + path + "/ "
-        
-        # Download
-        os.system("mkdir /jellyfin/Music/'" + args[0].replace("-", " ") + "'")
-        await ctx.send("Downloading song(s) to folder '" + args[0] + "'.")
-        subprocess.run(getsong + args[1])
-        await ctx.send("Downloading Finished.")
-        jf_refresh() 
-        await ctx.send("Reloading Jellyfin Library...")
-        
-        
-        
-    @bot.command()
-    async def rokualarm(ctx, *args):
-        pass
-    
-    
-    @bot.command()
-    async def bot_update(ctx, *args):
-        await ctx.send(subprocess.run("cd /home/renblas/DiscordBot; rm disbot.py; git pull", shell=True, check=True))
+        download(path, cmd)
+        await ctx.send("Download Request sent to Child")
     
     
     # ============================================================================ #
@@ -167,9 +197,7 @@ def init_bot():
 
 # main function
 def main():
-    global regex 
-    regex = re.compile(r"\[38;2(;\d{,3}){3}m")
-        
+   
     try:
         init_bot()
         print("Discord... YAY")
